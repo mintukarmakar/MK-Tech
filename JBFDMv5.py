@@ -22,6 +22,13 @@ def calculate_coefficients(epsilon, phi, epsilon_dot, phi_dot, omega, theta, spa
     return A, B, C, D, E, F, H, Hip, Him
 
 def conventional_FDM_iteration_with_boundary_conditions(P, A, B, C, D, E, F, max_iterations, relaxation_coefficient, min_relative_error):
+    # Apply initiation
+    P[:, :]=0.5
+    # Apply boundary conditions
+    P[0,:] = 0  # Set first row to 0
+    P[-1,:] = 0  # Set last row to 0
+    P[:, 0] = 0  # Set first column to 0
+    P[:, -1] = 0  # Set last column to 0 
     for iteration in range(max_iterations):
         P_previous = P.copy()
         for i in range(1, len(P)-1):
@@ -29,9 +36,10 @@ def conventional_FDM_iteration_with_boundary_conditions(P, A, B, C, D, E, F, max
                 P[i, j] = (F[i, j] - A[i, j] * P[i-1, j] - B[i, j-1] * P[i, j-1] - D[i, j] * P[i+1, j] - E[i, j+1] * P[i, j+1]) / C[i, j]
 
         # Apply boundary conditions
-        P[:, 0] = 0  # ¯P_(1…N,0)=0
-        P[0, 1:-1] = 0  # ¯P_(1, 1…M)=0
-        P[:, -1] = 0  # ¯P_(1…N, M+1)=0
+        P[0,:] = 0  # Set first row to 0
+        P[-1,:] = 0  # Set last row to 0
+        P[:, 0] = 0  # Set first column to 0
+        P[:, -1] = 0  # Set last column to 0
 
         # Apply relaxation coefficients
         P = relaxation_coefficient * P + (1-relaxation_coefficient) * P_previous
